@@ -1,5 +1,5 @@
-# Use PHP 8.2 FPM (matching your likely local environment)
-FROM php:8.2-fpm
+# Changed to 8.3 to match your composer.lock requirements
+FROM php:8.3-fpm
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -29,21 +29,21 @@ WORKDIR /var/www
 # Copy existing application directory contents
 COPY . .
 
-# Set Composer environment variables to prevent memory errors
+# Set Composer environment variables
 ENV COMPOSER_ALLOW_SUPERUSER=1
 ENV COMPOSER_MEMORY_LIMIT=-1
 
 # Install dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Copy the Nginx config we created earlier
+# Copy the Nginx config
 COPY nginx.conf /etc/nginx/sites-available/default
 
-# Fix permissions for Laravel
+# Fix permissions
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
 # Expose port 80
 EXPOSE 80
 
-# Start Nginx and PHP-FPM together
+# Start Nginx and PHP-FPM
 CMD service nginx start && php-fpm
